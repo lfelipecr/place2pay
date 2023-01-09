@@ -102,8 +102,8 @@ class payment_transaction(models.Model):
                         if _payment_information['requestId'] and self.get_transaction(_payment_information['requestId']):
                             _payment = _payment_information
                             _transaction = self.get_transaction(_payment_information['requestId'])
-                            _transaction.sudo().update({"state": "pending", "state_message": _payment["status"]["message"], "p2p_payment_method": ''})
-                            _transaction.sudo().write({"state": "pending", "state_message": _payment["status"]["message"], "p2p_payment_method": ''})
+                            _transaction.sudo().update({"state": "error", "state_message": _payment["status"]["message"], "p2p_payment_method": ''})
+                            _transaction.sudo().write({"state": "error", "state_message": _payment["status"]["message"], "p2p_payment_method": ''})
             except Exception as e:
                 exc_traceback = sys.exc_info()
                 _logger.warning(getattr(e, 'message', repr(e))+" ON LINE "+format(sys.exc_info()[-1].tb_lineno))

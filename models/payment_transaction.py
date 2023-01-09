@@ -35,13 +35,13 @@ class payment_transaction(models.Model):
             _logger.warning(_payment_information["payment"])
             try:   
                 has_receips = False 
-                if("payment" in _payment_information):      
+                if("payment" in _payment_information):
                     try:
-                        if(len(_payment_information["payment"])):
+                        if(len(_payment_information["payment"] or [])):
                             has_receips = True
                     except:
                         has_receips = False
-                        pass 
+                        pass
                     if(has_receips):
                         _transaction = self.get_transaction(_payment_information["requestId"])
                         for _payment in reversed(_payment_information["payment"]):
@@ -52,24 +52,24 @@ class payment_transaction(models.Model):
                                 _order = self.env["sale.order"].sudo().browse(int(order_id))
                                 if(str(_payment["status"]["status"]) == str("APPROVED")):
                                     _logger.warning("_process_payment3")
-                                    _transaction.sudo().update({"state":"done", "p2p_payment_method":_payment["paymentMethodName"], "state_message":_payment["status"]["message"]})                    
-                                    _transaction.sudo().write({"state":"done", "p2p_payment_method":_payment["paymentMethodName"], "state_message":_payment["status"]["message"]})  
+                                    _transaction.sudo().update({"state":"done", "p2p_payment_method":_payment["paymentMethodName"], "state_message":_payment["status"]["message"]})
+                                    _transaction.sudo().write({"state":"done", "p2p_payment_method":_payment["paymentMethodName"], "state_message":_payment["status"]["message"]})
                                     state = _order.state
-                                    if(state=="draft" or state=="sent" or state=="cancel"):                    
+                                    if(state=="draft" or state=="sent" or state=="cancel"):
                                         _order.sudo().action_confirm()
                                         _order.sudo()._send_order_confirmation_mail()
                                     try:
-                                        request.website.sale_reset() 
+                                        request.website.sale_reset()
                                     except:
                                         pass
                                     _order = self.env["sale.order"].sudo().browse(int(order_id))
-                                    _logger.warning(_order.state) 
+                                    _logger.warning(_order.state)
                                 elif(str(_payment["status"]["status"]) == str("REJECTED")):
-                                    _transaction.sudo().update({"state":"cancel", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})     
-                                    _transaction.sudo().write({"state":"cancel", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})      
+                                    _transaction.sudo().update({"state":"cancel", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})
+                                    _transaction.sudo().write({"state":"cancel", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})
                                 elif(str(_payment["status"]["status"]) == str("PENDING")):
-                                    _transaction.sudo().update({"state":"pending", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})     
-                                    _transaction.sudo().write({"state":"pending", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})  
+                                    _transaction.sudo().update({"state":"pending", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})
+                                    _transaction.sudo().write({"state":"pending", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})
                                     state = _order.state
                                     _logger.warning("state_STATE")
                                     _logger.warning(state)
@@ -79,16 +79,16 @@ class payment_transaction(models.Model):
                                         _order.sudo().write({'state':'sent'})
                                         _order.sudo()._send_order_confirmation_mail()
                                     try:
-                                        request.website.sale_reset() 
+                                        request.website.sale_reset()
                                     except:
-                                        pass  
+                                        pass
                                 elif(str(_payment["status"]["status"]) == str("DECLINED")):
-                                    _transaction.sudo().update({"state":"cancel", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})     
-                                    _transaction.sudo().write({"state":"cancel", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})        
+                                    _transaction.sudo().update({"state":"pending", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})
+                                    _transaction.sudo().write({"state":"pending", "state_message":_payment["status"]["message"], "p2p_payment_method":_payment["paymentMethodName"]})
                                 else:
                                     _logger.warning("_process_payment4")
                                     _transaction.sudo().update({"p2p_payment_method":_payment["paymentMethodName"]})
-                                
+
                                 self.action_send_notification(order_id, _order.name, _transaction, _payment["status"]["message"])
                         try:
                             transactions_list = self.get_transactions_list(reversed(_payment_information["payment"]))
@@ -98,7 +98,12 @@ class payment_transaction(models.Model):
                             _transaction.sudo().write({"p2p_internal_transactions": transactions_list})
                         except:
                             pass
-
+                    else:
+                        if _payment_information['requestId'] and self.get_transaction(_payment_information['requestId']):
+                            _payment = _payment_information
+                            _transaction = self.get_transaction(_payment_information['requestId'])
+                            _transaction.sudo().update({"state": "pending", "state_message": _payment["status"]["message"], "p2p_payment_method": ''})
+                            _transaction.sudo().write({"state": "pending", "state_message": _payment["status"]["message"], "p2p_payment_method": ''})
             except Exception as e:
                 exc_traceback = sys.exc_info()
                 _logger.warning(getattr(e, 'message', repr(e))+" ON LINE "+format(sys.exc_info()[-1].tb_lineno))

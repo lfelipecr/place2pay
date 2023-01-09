@@ -31,9 +31,7 @@
                             <strong>Notificación</strong>
                             <p class="m-0" t-field="_transaction.state_message"/>
                         </div>
-
             </xpath>
-            
         </template>
     </data>
 </odoo>

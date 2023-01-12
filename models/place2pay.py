@@ -77,49 +77,46 @@ class Place2Pay(object):
     # @param user_agent
     def create_payment_request(self, params):
         millis = int(round(time.time() * 1000)) + int(604800000)
-        payload =  {
-                        "auth": self.auth(params),                        
-                        "buyer": {
-                                    "name": params['buyer_name'],
-                                    "surname": params['buyer_surname'],
-                                    "email": params['buyer_email'],
-                                    "document": params['buyer_document'],
-                                    "documentType": params['buyer_p2p_document_type'],
-                                    "mobile": params['buyer_mobile']
-                                 },
-
-                        "payment": {
-                                        "reference": str(params['order_name']) + str("-") + str(millis),
-                                        "description": params['order_description'],
-                                        "amount":  {
-                                                        "currency": params['order_amount_currency'],
-                                                        "total": params['order_amount_total']
-                                                    },
-                                        "allowPartial":False,
-                                        # "shipping": {
-                                        #                 "name": "Prof. General Hoppe",
-                                        #                 "surname": "Kuhic",
-                                        #                 "email": "ejohns@yahoo.com",
-                                        #                 "documentType": "CC",
-                                        #                 "document": "4216523744",
-                                        #                 "mobile": "3006108300",
-                                        #                 "address": {
-                                        #                                 "street": "27791 Kyle Vista",
-                                        #                                 "city": "Metzton",
-                                        #                                 "state": "Antioquia",
-                                        #                                 "postalCode": "46366-1132",
-                                        #                                 "country": "US",
-                                        #                                 "phone": "438-475-0498 x513"
-                                        #                             }
-                                        #             }
-                                    },
-                        "locale": params['locale'],
-                        "expiration": self._get_expiration_time(),
-                        "returnUrl": params['return_url'],
-                        "cancelUrl": params['return_url'],
-                        "ipAddress": params['ip'],
-                        "userAgent": params['user_agent']
-                    }
+        payload = {
+            'auth': self.auth(params),                        
+            'buyer': {
+                'name': params['buyer_name'],
+                'surname': params['buyer_surname'],
+                'email': params['buyer_email'],
+                'document': params['buyer_document'],
+                'documentType': params['buyer_p2p_document_type'],
+                'mobile': params['buyer_mobile']
+            },
+            'payment': {
+                'reference': str(params['order_name']) + str('-') + str(millis),
+                'description': params['order_description'],
+                'amount': {
+                    'currency': params['order_amount_currency'],
+                    'total': params['order_amount_total'],
+                    'details': [
+                        {
+                            'kind': 'subtotal',
+                            'amount': params['order_amount_untaxed']
+                        }
+                    ]
+                },
+                'allowPartial': False,
+            },
+            'locale': params['locale'],
+            'expiration': self._get_expiration_time(),
+            'returnUrl': params['return_url'],
+            'cancelUrl': params['return_url'],
+            'ipAddress': params['ip'],
+            'userAgent': params['user_agent']
+        }
+        if params.get('order_amount_tax', 0) > 0:
+            payload['payment']['amount']['taxes'] = [
+                {
+                    'kind': 'valueAddedTax',
+                    'amount': params['order_amount_tax'],
+                    'base': 0
+                }
+            ]
         _logger.warning(payload)
         return payload     
 

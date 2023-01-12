@@ -262,7 +262,6 @@ class placetopay(http.Controller):
                 p2p_document_type = str(res_partner_shipping["document_type"])
         except:
             p2p_document_type = str(res_partner_shipping["document_type"])
-
         payload =   {
                         # AUTH
                             "login": acquirer["place2pay_login"],
@@ -279,6 +278,8 @@ class placetopay(http.Controller):
                             "order_description": str("Pedido\n") + str("ID: ") +str(draft_order["id"]) + str("\n") + str("NAME: ")  + str(draft_order["name"]), 
                             "order_amount_currency": self.get_order_currency(draft_order["id"]),
                             "order_amount_total": draft_order["amount_total"],
+                            "order_amount_untaxed": draft_order["amount_untaxed"],
+                            "order_amount_tax": draft_order["amount_tax"],
                         # EXTRA
                             "return_url": self.get_return_url(),
                             "ip": self.get_ip(),
@@ -352,9 +353,9 @@ class placetopay(http.Controller):
     def get_order(self, partner_id, online_payment):
         query = ""
         if(online_payment=="no"):
-            query = "select id, name, amount_total, amount_tax, date_order, partner_shipping_id from sale_order where partner_id = '"+str(partner_id)+"' and state = '"+str('draft')+"' order by date_order desc limit 1"
+            query = "select id, name, amount_untaxed, amount_total, amount_tax, date_order, partner_shipping_id from sale_order where partner_id = '"+str(partner_id)+"' and state = '"+str('draft')+"' order by date_order desc limit 1"
         if(online_payment=="yes"):
-            query = "select id, name, amount_total, amount_tax, date_order, partner_shipping_id from sale_order where partner_id = '"+str(partner_id)+"' and state = '"+str('sent')+"' and require_payment = True order by date_order desc limit 1"
+            query = "select id, name, amount_untaxed, amount_total, amount_tax, date_order, partner_shipping_id from sale_order where partner_id = '"+str(partner_id)+"' and state = '"+str('sent')+"' and require_payment = True order by date_order desc limit 1"
         request.cr.execute(query)
         order = request.cr.dictfetchone()
         return order

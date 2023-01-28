@@ -175,27 +175,28 @@ class placetopay(http.Controller):
             http.request.env['payment.transaction'].sudo().cron()
         return self.ecommerce_redirection(transaction, http.request.session.p2p_order_id)
     
-    @http.route('/place2pay/notification', methods=['POST'], type='http', auth="public", website=True, csrf=False)
-    def process_notification(self, **kw):
-        _logger.warning(self.non_sql_injection([kw.get('requestId'), kw.get('reference')]))
-        if(self.non_sql_injection([kw.get('requestId'), kw.get('reference')])):
-            raise Warning("Se detecto un intento de ataque a través del envio de datos por parametro. Ver archivo de registro para más información.")
+    @http.route('/place2pay/notification', methods=['POST'], type='json', auth="public")
+    def process_notification(self):
+        response = request.jsonrequest
         _p2p = Place2Pay()
-        _logger.warning(kw.get('requestId'))
-        _logger.warning(kw.get('reference'))
-        _logger.warning("transaction")
-        transaction = self.get_transaction(kw.get('requestId'))
+        if not response.get('requestId') or not response.get('reference'):
+            return False
+        transaction = self.get_transaction(response.get('requestId'))
         _logger.warning(transaction)
-        if(transaction):
+        if transaction:
             order = self.get_order_by_transaction(transaction['id'])
             _logger.warning("order")
             _logger.warning(order)
             if(order):
                 acquirer = self.get_this_acquirer()
                 _logger.warning(acquirer)
-                _p2p.set_webservice_call(str(kw.get('requestId')), acquirer["state"])
-                payload = _p2p.get_payment_request_information({"login":acquirer["place2pay_login"], "secretkey":acquirer["secretkey"]})
+                _p2p.set_webservice_call(str(response.get('requestId')), acquirer["state"])
+                payload = _p2p.get_payment_request_information({"login": acquirer["place2pay_login"], "secretkey": acquirer["secretkey"]})
                 _payment_information = _p2p.send_request(payload, acquirer["state"])
+                _payment_information.update(response)
+                for pyament in _payment_information['payment']:
+                    pyament['status']['status'] = response['status']['status']
+                    pyament['status']['message'] = response['status']['message']
                 _logger.warning(_payment_information)
                 self.unlink_non_p2p_payments_transactions(order['id'])
                 self._process_payment(_payment_information, order['id'])
@@ -372,7 +373,7 @@ class placetopay(http.Controller):
         transaction = request.cr.dictfetchone()
         if(transaction):
             if("sale_order_id" in transaction):
-                query = "select id, name, amount_total, amount_tax, date_order, partner_shipping_id from sale_order where id = "+str(transaction_id)+" and state = '"+str('draft')+"' order by date_order desc limit 1"                
+                query = "select id, name, amount_total, amount_tax, date_order, partner_shipping_id from sale_order where id = "+str(transaction['sale_order_id'])+" and state in ('draft', 'sent') order by date_order desc limit 1"
                 request.cr.execute(query)
                 order = request.cr.dictfetchone()
                 return order
@@ -417,16 +418,10 @@ class placetopay(http.Controller):
     
     def get_transaction(self, request_id=None):
         if(request_id):
-            query = "select * from payment_transaction where p2p_request_id = '" + str(request_id) + "' limit 1"
+            transaction = request.env['payment.transaction'].sudo().search([('p2p_request_id', '=', request_id)])
         else:
             if("p2p_request_id" in http.request.session):
-                query = "select * from payment_transaction where p2p_request_id = '" + str(http.request.session.p2p_request_id) + "' limit 1"
-        
-        _logger.warning('query')
-        _logger.warning(query)
-
-        request.cr.execute(query)
-        transaction = request.cr.dictfetchone()
+                transaction = request.env['payment.transaction'].sudo().search([('p2p_request_id', '=', http.request.session.p2p_request_id)])
         return transaction
     
     def get_order_transactions(self, order_id):

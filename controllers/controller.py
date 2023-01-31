@@ -193,10 +193,6 @@ class placetopay(http.Controller):
                 _p2p.set_webservice_call(str(response.get('requestId')), acquirer["state"])
                 payload = _p2p.get_payment_request_information({"login": acquirer["place2pay_login"], "secretkey": acquirer["secretkey"]})
                 _payment_information = _p2p.send_request(payload, acquirer["state"])
-                _payment_information.update(response)
-                for pyament in _payment_information['payment']:
-                    pyament['status']['status'] = response['status']['status']
-                    pyament['status']['message'] = response['status']['message']
                 _logger.warning(_payment_information)
                 self.unlink_non_p2p_payments_transactions(order['id'])
                 self._process_payment(_payment_information, order['id'])

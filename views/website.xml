@@ -4,7 +4,7 @@
         <template id="address_b2b" inherit_id="website_sale.address">
             <xpath expr="//input[@name='vat']" position="before">
                 <t>
-                    <select  name="p2p_document_type" id="p2p_document_type" t-attf-class="form-control #{error.get('p2p_document_type') and 'is-invalid' or ''}" t-att-readonly="'1' if 'vat' in checkout and checkout['vat'] and not can_edit_vat else None">                        
+                    <select  name="identification_id" id="identification_id" t-attf-class="form-control #{error.get('identification_id') and 'is-invalid' or ''}" t-att-readonly="'1' if 'vat' in checkout and checkout['vat'] and not can_edit_vat else None">
                     </select>                
                 </t>
             </xpath>
@@ -98,7 +98,7 @@
 
             <value>res.partner</value>
             <value eval="[
-                            'p2p_document_type',
+                            'identification_id',
                             'firstname',
                             'lastname',
                             'county_id',

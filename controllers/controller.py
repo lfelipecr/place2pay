@@ -105,7 +105,7 @@ class placetopay(http.Controller):
 
     @http.route('/place2pay/set_document_type', methods=['POST'], type='json', auth="public", website=True)
     def set_document_type(self, **kw):
-        http.request.session['p2p_document_type'] = str(kw.get('code'))
+        http.request.session['identification_id'] = str(kw.get('code'))
 
     def non_sql_injection(self, params):
         is_psql_query = False
@@ -252,13 +252,12 @@ class placetopay(http.Controller):
 
         # FORMAT NAME & SURNAME
         _full_name = self.get_buyer_fullname(res_partner_shipping["name"])
-        p2p_document_type = None
         try:
-            p2p_document_type = str(http.request.session["p2p_document_type"])
-            if(str(p2p_document_type)==str("None")):
-                p2p_document_type = str(res_partner_shipping["document_type"])
+            identification_id = str(http.request.session["identification_id"])
+            if(str(identification_id)==str("None")):
+                identification_id = str(res_partner_shipping["document_type"])
         except:
-            p2p_document_type = str(res_partner_shipping["document_type"])
+            identification_id = str(res_partner_shipping["document_type"])
         payload =   {
                         # AUTH
                             "login": acquirer["place2pay_login"],
@@ -268,7 +267,7 @@ class placetopay(http.Controller):
                             "buyer_surname": _full_name["surname"],
                             "buyer_email": res_partner_shipping["email"],
                             "buyer_document": str(res_partner_shipping["vat"]),
-                            "buyer_p2p_document_type": p2p_document_type,
+                            "buyer_identification_id": identification_id,
                             "buyer_mobile": res_partner_shipping["mobile"] if res_partner_shipping["mobile"] and len(res_partner_shipping["mobile"]) else res_partner_shipping["phone"],
                         # PAYMENT
                             "order_name": draft_order["name"],
@@ -335,10 +334,10 @@ class placetopay(http.Controller):
             http.request.env['mail.message'].sudo().create(mail_message_values)
             
     def get_buyer(self, partner_id):
-        query = "select res_partner.id, res_partner.name, res_partner.p2p_document_type, res_partner.vat, res_partner.phone, res_partner.mobile, res_partner.email, res_partner.street, res_partner.city, res_partner.zip, res_partner.lang, res_country.name as country_name, res_country.code as country_code, res_country_state.name as state_name, res_currency.name as currency_name, res_currency.symbol as currency_symbol from res_partner left join res_country on res_country.id = res_partner.country_id left join res_country_state on res_country_state.id = res_partner.state_id left join res_currency on res_country.currency_id = res_currency.id   where res_partner.id = '"+str(partner_id)+"' limit 1"
+        query = "select res_partner.id, res_partner.name, res_partner.identification_id, res_partner.vat, res_partner.phone, res_partner.mobile, res_partner.email, res_partner.street, res_partner.city, res_partner.zip, res_partner.lang, res_country.name as country_name, res_country.code as country_code, res_country_state.name as state_name, res_currency.name as currency_name, res_currency.symbol as currency_symbol from res_partner left join res_country on res_country.id = res_partner.country_id left join res_country_state on res_country_state.id = res_partner.state_id left join res_currency on res_country.currency_id = res_currency.id   where res_partner.id = '"+str(partner_id)+"' limit 1"
         request.cr.execute(query)
         res_partner_shipping = request.cr.dictfetchone()
-        query = "select id, code, name from l10n_latam_document_type where id = " + str(res_partner_shipping['p2p_document_type'])
+        query = "select id, code, name from l10n_latam_document_type where id = " + str(res_partner_shipping['identification_id'])
         request.cr.execute(query)
         document_type = request.cr.dictfetchone()
         res_partner_shipping["document_type"] = document_type["code"]
@@ -506,9 +505,6 @@ class placetopay(http.Controller):
                 url_send = str(base_url) + str(sharable)
             _logger.warning("URLLANDIA")
             _logger.warning(url_send)
-            #http.request.session['p2p_document_type'] = None
-            #http.request.session.p2p_request_id = None
-            #http.request.session.p2p_order_id = None
             return werkzeug.utils.redirect(url_send)
         except Exception as e:
            exc_traceback = sys.exc_info()

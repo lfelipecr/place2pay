@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models, _
+from odoo import fields, models
 
-class res_partner(models.Model):
+
+class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    p2p_document_type = fields.Many2one (comodel_name="l10n_latam.document.type", string="Document type",  help="")
-
+    l10n_cr_document_type_id = fields.Char()
+    p2p_document_type = fields.Char()
     zip = fields.Char('Zip', required=False)
     city = fields.Char('City', required=False)

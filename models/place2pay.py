@@ -64,7 +64,7 @@ class Place2Pay(object):
     # @param buyer_surname
     # @param buyer_email
     # @param buyer_document
-    # @param buyer_p2p_document_type
+    # @param buyer_identification_id
     # @param buyer_mobile
     # PAYMENT
     # @param order_name
@@ -84,7 +84,7 @@ class Place2Pay(object):
                 'surname': params['buyer_surname'],
                 'email': params['buyer_email'],
                 'document': params['buyer_document'],
-                'documentType': params['buyer_p2p_document_type'],
+                'documentType': params['buyer_identification_id'],
                 'mobile': params['buyer_mobile']
             },
             'payment': {

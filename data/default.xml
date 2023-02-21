@@ -108,57 +108,5 @@
 			<field name="report_name">DNI</field>
 			<field name="country_id">173</field>
 		</record>
-		<!--Costa Rica-->
-		<record id="country_documents_types_crcpf" model="l10n_latam.document.type">
-			<field name="code">CRCPF</field>
-			<field name="name">Cedula personal física</field>
-			<field name="doc_code_prefix">CRCPF</field>
-			<field name="report_name">CRCPF</field>
-			<field name="country_id">50</field>
-		</record>
-		<record id="country_documents_types_cpj" model="l10n_latam.document.type">
-			<field name="code">CPJ</field>
-			<field name="name">Cedula personal juridica</field>
-			<field name="doc_code_prefix">CPJ</field>
-			<field name="report_name">CPJ</field>
-			<field name="country_id">50</field>
-		</record>
-		<record id="country_documents_types_dimex" model="l10n_latam.document.type">
-			<field name="code">DIMEX</field>
-			<field name="name">DIMEX- Docuemnto de identificacion de Migracion y Extranjeria</field>
-			<field name="doc_code_prefix">DIMEX</field>
-			<field name="report_name">DIMEX</field>
-			<field name="country_id">50</field>
-		</record>
-		<record id="country_documents_types_didi" model="l10n_latam.document.type">
-			<field name="code">DIDI</field>
-			<field name="name">DIDI - Docuemnto de identificacion de diplomaticos</field>
-			<field name="doc_code_prefix">DIMEX</field>
-			<field name="report_name">DIMEX</field>
-			<field name="country_id">50</field>
-		</record>
-		<!--Internacional-->
-		<record id="country_documents_types_ppn" model="l10n_latam.document.type">
-			<field name="code">PPN</field>
-			<field name="name">Pasaporte</field>
-			<field name="doc_code_prefix">PPN</field>
-			<field name="report_name">PPN</field>
-			<field name="country_id">251</field>
-		</record>
-		<record id="country_documents_types_tax" model="l10n_latam.document.type">
-			<field name="code">TAX</field>
-			<field name="name">TAX</field>
-			<field name="doc_code_prefix">TAX</field>
-			<field name="report_name">TAX</field>
-			<field name="country_id">251</field>
-		</record>
-		<record id="country_documents_types_lic" model="l10n_latam.document.type">
-			<field name="code">LIC</field>
-			<field name="name">Labeler Identification Code</field>
-			<field name="doc_code_prefix">LIC</field>
-			<field name="report_name">LIC</field>
-			<field name="country_id">251</field>
-		</record>
-		
 	</data>
 </odoo>

@@ -63,7 +63,7 @@ odoo.define('module.placetopay', function(require)
             }                  
         });
 
-        if($("select#p2p_document_type").length > 0)
+        if($("select#identification_id").length > 0)
         {
             if($("select#country_id").length > 0)
             {  
@@ -107,7 +107,7 @@ odoo.define('module.placetopay', function(require)
             setLocation('district_id');
         });
 
-        $("select#p2p_document_type").on("change", function()
+        $("select#identification_id").on("change", function()
         {
             setDocumentType();
         });
@@ -404,7 +404,7 @@ odoo.define('module.placetopay', function(require)
                         {
                             var documents_types = response.result.document_types;
                             var options = response.result.options;
-                            $("select#p2p_document_type").html(options); 
+                            $("select#identification_id").html(options);
                         } catch (error) 
                         {}                                      
                     }
@@ -417,8 +417,8 @@ odoo.define('module.placetopay', function(require)
 
     function setDocumentType()
     {
-        var p2p_document_type = $("select#p2p_document_type");
-        var code = $('option:selected', p2p_document_type).attr('code');
+        var identification_id = $("select#identification_id");
+        var code = $('option:selected', identification_id).attr('code');
         var data = { "params": { "code": code } }
             $.ajax({
                 type: "POST",

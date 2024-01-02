@@ -337,10 +337,10 @@ class placetopay(http.Controller):
         query = "select res_partner.id, res_partner.name, res_partner.identification_id, res_partner.vat, res_partner.phone, res_partner.mobile, res_partner.email, res_partner.street, res_partner.city, res_partner.zip, res_partner.lang, res_country.name as country_name, res_country.code as country_code, res_country_state.name as state_name, res_currency.name as currency_name, res_currency.symbol as currency_symbol from res_partner left join res_country on res_country.id = res_partner.country_id left join res_country_state on res_country_state.id = res_partner.state_id left join res_currency on res_country.currency_id = res_currency.id   where res_partner.id = '"+str(partner_id)+"' limit 1"
         request.cr.execute(query)
         res_partner_shipping = request.cr.dictfetchone()
-        query = "select id, code, name from l10n_latam_document_type where id = " + str(res_partner_shipping['identification_id'])
+        query = "select id, code, name, doc_code_prefix from l10n_latam_document_type where id = " + str(res_partner_shipping['identification_id'])
         request.cr.execute(query)
         document_type = request.cr.dictfetchone()
-        res_partner_shipping["document_type"] = document_type["code"]
+        res_partner_shipping["document_type"] = document_type["doc_code_prefix"]
         _logger.warning("res_partner_shipping")
         _logger.warning(res_partner_shipping)
         _logger.warning(document_type)

@@ -2,14 +2,14 @@
 {
     'name': 'PlaceToPay - website',
     'description': "Addon para recibir pagos a través del sitio web de comercio electrónico",
-    'author': "ROCKSCRIPTS",
-    'website': "https://instagram.com/rockscripts",
+    'author': "Felipe Montero Jimenez",
+    'website': "https://www.linkedin.com/in/lfelipecr/",
     'summary': "PlaceToPay para sitio web de comercio electrónico",
     'version': '0.1',
     "license": "OPL-1",
     'price':'0',
     'currency':'USD',
-    'support': 'rockscripts@gmail.com',
+    'support': 'lmontero@zoho.com',
     'category': 'Website',
     "images": ["images/banner.png"],
     'depends': [

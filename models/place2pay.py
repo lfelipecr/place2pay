@@ -77,8 +77,7 @@ class Place2Pay(object):
     # @param user_agent
     def create_payment_request(self, params):
         millis = int(round(time.time() * 1000)) + int(604800000)
-        if params['buyer_identification_id'] == "CRCPF":
-            params['buyer_identification_id'] = "CPF"
+        
         payload = {
             'auth': self.auth(params),
             'buyer': {
